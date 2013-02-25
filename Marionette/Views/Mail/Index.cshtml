@@ -1,0 +1,281 @@
+﻿
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>BBCloneMail: A Backbone.Marionette Reference Application</title>
+  
+ <link href="/Content/bbclonemail.css" rel="stylesheet" type=text/css>
+ <script src="/Scripts/json2.js"></script>
+ <script src="/Scripts/jquery.js"></script>
+ 
+ <script src="/Scripts/underscore.js"></script>
+ <script src="/Scripts/backbone.js"></script>
+ <script src="/Scripts/backbone.routefilter.js"></script>
+ <script src="/Scripts/backbone.compute.js"></script>
+ <script src="/Scripts/backbone.marionette.js"></script>
+
+
+<script id="email-preview-template" type="text/template">
+<header><a href ="#mail/inbox/<%= id %>"><span class="from"><%= from %></span>
+<span class="subject"><%= subject %></span><span class="date"><%= date %></span></a>
+</header>
+</script>
+
+<script id="email-view-template" type="text/template">
+<li>
+<header>
+<span class="from"><%= from %></span>
+<span class="subject"><%= subject %></span>
+<span class="date"><%= date %></span>
+</header>
+<article>
+<div class="body">
+<% if (categories){ %><ul class="emailCategories"><% _.each(categories, function(category){ %>
+<li> <a href="#mail/categories/<%= category %>"><%= category %></a></li>
+<% }); %></ul><% } %>
+<%= body %></div></article></li>
+</script>
+
+
+<script id="mail-categories-view-template" type="text/template"><p>Mail Categories</p>
+<ul>
+<li><a data-category="" href="#mail" class="mail-category">Inbox</a></li>
+<li><a data-category="sent" href="#mail/categories/sent" class="mail-category">Sent</a></li>
+<li><a data-category="trash" href="#mail/categories/trash" class="mail-category">Trash</a></li></ul>
+<ul class="customCategories"><% _.each(items, function(category) { %><li><a data-category ="<%= category.name %>" href ="#mail/categories/<%= category.name %>" class="mail-category">
+<%= category.name %></a></li><% }); %>
+</ul>
+</script>
+
+<script id="contact-categories-view-template" type="text/template"><p>Contact Categories</p>
+<ul>
+<li><a>Everyone</a></li>
+<li><a>Friends</a></li>
+<li><a>Family</a></li>
+<li><a>Coworkers</a></li>
+</ul>
+</script>
+
+<script id="contact-item-template" type="text/template">
+<span class="name"><%= fullName %></span><span class="email"><%= email %></span>
+<span class="phone"><%= phone %></span>
+</script>
+
+<script id="app-selector-template" type="text/html">
+<option value="mail">Mail</option><option value="contacts">Contacts</option>
+</script>
+
+</head>
+
+<body>
+<section class="header">
+<div class="container">
+<header>
+<h1>BBCloneMail</h1>
+<p class="tag-line">A <a href="http://marionettejs.com">Marionette.js </a>Reference Application</p>
+</header>
+
+<header class="help">This application demonstrates the use of 
+<a href="http://marionettejs.com">Marionette.js </a>plugin for BackboneJS. To see it in action, change the selected app 
+in the drop list to the left. Be sure to check out <a href="http://github.com/marionettejs/bbclonemail">the source code </a>to see how it works.</header></div></section>
+<section class="content">
+<div class="container">
+<navigation>
+<section id="app-selector"></section>
+<section id="navigation"></section>
+</navigation>
+<article id="main">
+<div id="loading">
+<img src/images/ajax-loader.gif>
+</div>
+</article>
+</div>
+</section>
+
+<section class="footer"><div class="container">
+<footer>
+<ul>
+<li>Copyright &copy;2013 <a href="http://mutedsolutions.com">Muted Solutions, LLC. </a>All rights reserved. </li>
+</ul>
+
+<ul>
+<li>BBCloneMail is a reference app for building awesomeness with <a href="http://backbonejs.org">Backbone.js </a>and <a href="http://marionettejs.com">Marionette.js</a></li>
+</ul>
+
+<ul>
+<li class="title">BBCloneMail Source:</li>
+<li><a href="http://github.com/marionettejs/bbclonemail">The Github Project</a></li>
+<li><a href="http://marionettejs.github.com/bbclonemail/docs/bbclonemail.html">The Annoted Code</a></li>
+</ul>
+
+<ul>
+<li class="title">Find me on the web:</li>
+<li><a href="http://marionettejs.com">MarionetteJS.com</a></li>
+<li><a href="http://backbonetraining.net">BackboneTraining.net</a></li>
+<li><a href="http://watchmecode.net">WatchMeCode.net</a></li>
+<li><a href="http://derickbailey.lostechies.com">DerickBailey.lostechies.com</a></li>
+<li><a href="http://mutedsolutions.com">MutedSolutions.com</a></li>
+</ul>
+</footer>
+</div>
+</section>
+<!-- for production, just load the one script that has been concatenated and minified.-->
+<script src="/Scripts/mailapp2.js"></script>
+
+<script>    $(function () {
+
+        BBCloneMail.readData = function (url) {
+
+            if (url === "/categories") {
+                var categories = [
+                  { name: "Work Related" },
+                  { name: "Personal" },
+                  { name: "Important" },
+                  { name: "Read Later" },
+                  { name: "Stockbot" }
+                ];
+                return categories;
+            }
+
+            if (url === "/email") {
+                var body = [
+                  "<p>Bring the Humans to me RUN! wibbly wobbly timey wimey wibbly wobbly timey wimey you are not alone in the universe ninehundred  Hey, who turned out the lights? I wear a fez now, fezzes are cool EXTERMINATE! Hello sweetie IT is the Doctor! Enemy of the Daleks! wibbly-wobbly timey-wimey Fantastic! I wear a fez now, fezzes are cool Galifrey River Song EXTERMINATE! </p>" +
+                  "<p>the girl who waited the oncoming storm Davros The Shadow Proclamation Bad Wolf  River Song RUN! Donna Noble has left the library. Donna Noble has been saved. IT is the Doctor! Enemy of the Daleks! We are Dalek Skaro Davros The angels have the phone box DON'T BLINK! River Song You are better at dying Bow ties are cool Geronimo! Rose Tyler I am a Dalek Hello, Captain Jack Harkness.</p>" +
+                  "<p>Raxacoricofallapatorius Silence will fall I really hate stairs. EXTERMINATE ALL STAIRCASES! Reverse the polarity of the positron flow The Supreme Dalek IT is the Doctor! Enemy of the Daleks! Reverse the polarity of the positron flow I hereby invoke The Shadow Proclamation! Reverse the polarity of the positron flow puny human Tick tock goes the clock... Bow ties are cool Skaro Donna</p>" +
+                  "<p>Noble has left the library. Donna Noble has been saved. Hello Sweetie. I wear a fez now, fezzes are cool You are better at dying We are Dalek Hello sweetie! Allons-y Bow ties are cool MY VISION IS IMPAIRED! EXTERMINATE! Would you like a jelly baby? RUN! Raxacoricofallapatorius EXTERMINATE! Hello Sweetie. Emperor of the Daleks Emperor of the Daleks Delete. Delete. Delete. The angels have the phone box </p>" +
+                  "<p>Raxacoricofallapatorius The socks with holes, dummy! River Song Hello sweetie! Galifreyan You are better at dying Rory the Roman The Master Hey, who turned out the lights? Are you my mummy? Hello, Captain Jack Harkness.  Cult of Skaro Time War Bad Wolf Fantastic! The angels have the phone box Raxacoricofallapatorius Puny Human! The Supreme Dalek Hello sweetie! The Supreme Dalek </p>" +
+                  "<p>the oncoming storm Galifrey Hello Sweetie. Time Lord Fantastic! Rory the Roman Hello, Captain Jack Harkness.  you are not alone in the universe puny human Spoilers!"
+                ].join();
+
+
+                var email = [
+                  {
+                      id: "sdf908f67hjf9sf",
+                      from: "Joe Johnson",
+                      subject: "Some email about that subject which was sent to you",
+                      date: "1/1/2001",
+                      body: body,
+                      categories: ["Work Related"]
+                  },
+                  {
+                      id: "365hljk85436lkh",
+                      from: "Jim Jimson",
+                      subject: "Did you get that thing I sent you?",
+                      date: "1/1/2001",
+                      body: body,
+                      categories: ["Work Related", "Read Later"]
+                  },
+                  {
+                      id: "a89ghjkl12389sg",
+                      from: "Ben Benson",
+                      subject: "Nigerian King needs YOU to send HIM money!",
+                      date: "1/1/2001",
+                      body: body,
+                      categories: ["Personal", "Important"]
+                  },
+                  {
+                      id: "764089gfdljk563",
+                      from: "Bob Robertson",
+                      subject: "Yo dawg, I hear you like Backbone...",
+                      date: "1/1/2001",
+                      body: body,
+                      categories: ["Read Later", "Important"]
+                  },
+                ];
+                return email;
+            }
+
+            if (url === "/contacts") {
+
+                var contacts = [
+              {
+                  id: "09vsjk3209svdjh",
+                  firstName: "Joe",
+                  lastName: "Johnson",
+                  email: "joe.johnson@example.com",
+                  phone: "555-555-5555"
+              },
+              {
+                  id: "45890bdhj4590gf",
+                  firstName: "Jim",
+                  lastName: "Jimson",
+                  email: "jim.jimson@example.com",
+                  phone: "555-555-5556"
+              },
+              {
+                  id: "120985h4509vfh4",
+                  firstName: "Ben",
+                  lastName: "Benson",
+                  email: "ben.benson@example.com",
+                  phone: "555-555-5557"
+              },
+              {
+                  id: "9sd9123njkdas90",
+                  firstName: "Bob",
+                  lastName: "Robertson",
+                  email: "robert.robertson@example.com",
+                  phone: "555-555-5558"
+              },
+              {
+                  id: "lj32kjsd09xzcv3",
+                  firstName: "Amy",
+                  lastName: "Amerson",
+                  email: "amy.amerson@example.com",
+                  phone: "555-555-5559"
+              },
+              {
+                  id: "aa23j45hn45n536",
+                  firstName: "Julie",
+                  lastName: "Julerson",
+                  email: "julie.julerson@example.com",
+                  phone: "555-555-5560"
+              }
+            ];
+                return contacts;
+            }
+        }
+
+        Backbone.sync = function (method, model, options, error) {
+
+            console.log('sync method:' + method);
+            var url = _.result(model, 'url') || urlError();
+            console.log('url:' + url);
+
+
+            if (typeof options == 'function') {
+                options = {
+                    success: options,
+                    error: error
+                };
+            }
+
+            var resp;
+
+            switch (method) {
+                case "read": resp = BBCloneMail.readData(url); break;
+                case "create": resp = {}; break;
+                case "update": resp = {}; break;
+                case "delete": resp = {}; break;
+            }
+
+            if (resp) {
+                options.success(model, resp, options);
+            } else {
+                options.error(model, "Record not found", options);
+            }
+        };
+
+
+
+
+
+        BBCloneMail.start();
+    });</script>
+
+
+
+
+
+</body>
+</html>
